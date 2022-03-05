@@ -3,6 +3,7 @@
 namespace DigitallyHappy\Assets;
 
 use Illuminate\Support\ServiceProvider;
+use Illuminate\Support\Str;
 
 class AssetsServiceProvider extends ServiceProvider
 {
@@ -31,7 +32,7 @@ class AssetsServiceProvider extends ServiceProvider
         // $loader = \Illuminate\Foundation\AliasLoader::getInstance();
         // $loader->alias('Assets', '\DigitallyHappy\Assets\Facade\Assets');
 
-        require_once __DIR__.'/blade_directives.php';
+        $this->registerBladeDirectives();
     }
 
     /**
@@ -42,5 +43,44 @@ class AssetsServiceProvider extends ServiceProvider
     public function provides()
     {
         return ['assets'];
+    }
+
+    private function registerBladeDirectives()
+    {
+        $bladeCompiler = $this->app['blade.compiler'];
+
+        $bladeCompiler->directive('loadStyleOnce', function ($parameter) {
+            return "<?php Assets::echoCss({$parameter}); ?>";
+        });
+
+        $bladeCompiler->directive('loadScriptOnce', function ($parameter) {
+            return "<?php Assets::echoJs({$parameter}); ?>";
+        });
+
+        $bladeCompiler->directive('loadOnce', function ($parameter) {
+            // determine if it's a CSS or JS file
+            $cleanParameter = Str::of($parameter)->trim("'")->trim('"')->trim('`');
+            $filePath = Str::of($cleanParameter)->before('?')->before('#');
+
+            // mey be useful to get the second parameter
+            // if (Str::contains($parameter, ',')) {
+            //     $secondParameter = Str::of($parameter)->after(',')->trim(' ');
+            // }
+
+            if (substr($filePath, -3) == '.js') {
+                return "<?php Assets::echoJs({$parameter}); ?>";
+            }
+
+            if (substr($filePath, -4) == '.css') {
+                return "<?php Assets::echoCss({$parameter}); ?>";
+            }
+
+            // it's a block start
+            return "<?php if(! Assets::isLoaded('".$cleanParameter."')) { Assets::markAsLoaded('".$cleanParameter."');  ?>";
+        });
+
+        $bladeCompiler->directive('endLoadOnce', function () {
+            return '<?php } ?>';
+        });
     }
 }
