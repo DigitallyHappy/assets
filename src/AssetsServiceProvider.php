@@ -62,7 +62,7 @@ class AssetsServiceProvider extends ServiceProvider
             $cleanParameter = Str::of($parameter)->trim("'")->trim('"')->trim('`');
             $filePath = Str::of($cleanParameter)->before('?')->before('#');
 
-            // mey be useful to get the second parameter
+            // may be useful to get the second parameter
             // if (Str::contains($parameter, ',')) {
             //     $secondParameter = Str::of($parameter)->after(',')->trim(' ');
             // }
