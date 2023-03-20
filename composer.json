@@ -12,7 +12,7 @@
     "homepage": "https://github.com/digitallyhappy/assets",
     "keywords": ["Laravel", "Assets", "Load CSS once", "Load JS once"],
     "require": {
-        "laravel/framework": "^10.1",
+        "laravel/framework": "^10.1|^9.0",
         "guzzlehttp/guzzle": "^7.5"
     },
     "require-dev": {
